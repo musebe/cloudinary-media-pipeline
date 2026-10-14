@@ -9,11 +9,25 @@ The saved demo includes real Cloudinary outputs in the repository. The storefron
 Use Node.js 24 and pnpm 10.
 
 ```bash
+git clone https://github.com/musebe/cloudinary-media-pipeline.git
+cd cloudinary-media-pipeline
 pnpm install
+```
+
+Keep your existing `.env.local`. For a fresh clone, copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+openssl rand -hex 32
+```
+
+Paste the generated value into `DEMO_SESSION_SECRET` in `.env.local`. That secret enables server-side review sessions. The bundled demo does not require Cloudinary API credentials. Leave both processing flags set to `false` for the saved demo.
+
+```bash
 pnpm dev
 ```
 
-Open [http://localhost:3002](http://localhost:3002). Keep your existing `.env.local`. For a fresh setup, copy `.env.example` and set a random `DEMO_SESSION_SECRET` of at least 32 characters. That secret enables server-side review sessions. The bundled demo does not require Cloudinary API credentials.
+Open [http://localhost:3002](http://localhost:3002). Restart the server after changing environment variables.
 
 ## Try the demo
 
@@ -24,6 +38,8 @@ Open [http://localhost:3002](http://localhost:3002). Keep your existing `.env.lo
 5. Select **Verify & release**, then **Download WebP** or **Download evidence**.
 
 **Preview workflow** shows the fixed handoffs without preparing an output. **Resume previous review** restores the current browser session after refresh; runs expire after twenty minutes. **Start new review** clears approval and reuses the verified output.
+
+The first storefront output is visible before any interaction. You can also select **Review this output** to begin its review.
 
 | Output         | Dimensions  | Fit                   | Saved file size |
 | -------------- | ----------- | --------------------- | --------------: |
@@ -48,6 +64,12 @@ Configure the Cloudinary variables in `.env.local`, set `ENABLE_LIVE_PIPELINE=tr
 The browser uploads directly to an authenticated Cloudinary asset in `media-pipeline/originals`. The server verifies ownership and source facts, generates one standard eager transformation, reads the derivative back, and checks its delivered pixels and checksum. Original display uses reviewer access; final download uses a session-checked proxy.
 
 Each new uploaded-output preparation consumes a standard transformation and verification reads. Repeating an unchanged current run reuses its evidence; it is not a global cache. No AI generation, paid analysis, or model provider is used. Production uploads remain disabled even if the flag is set.
+
+## Public demo configuration
+
+The hosted application reuses the committed example files. It needs a random server-only `DEMO_SESSION_SECRET` of at least 32 characters. Set `ENABLE_LIVE_PIPELINE=false` and `ENABLE_PAID_ANALYSIS=false`. Cloudinary API keys and secrets are not required for this saved-demo mode and should not be added to the public deployment.
+
+Visitors can compare all three outputs, review them, and download an approved result. They cannot upload images or trigger Cloudinary transformations or paid analysis.
 
 ## Checks and source
 

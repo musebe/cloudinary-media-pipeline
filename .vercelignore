@@ -1,0 +1,13 @@
+# Deploy application source and committed demo assets, never local credentials.
+.env*
+.next
+.next-test
+.test-artifacts
+test-results
+playwright-report
+node_modules
+.agents
+.claude
+.cursor
+.mcp.json
+*.tsbuildinfo
