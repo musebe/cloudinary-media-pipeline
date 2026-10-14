@@ -1,6 +1,6 @@
 # Local setup
 
-The preview runs without a Cloudinary account or API key. It produces a validated workflow plan, not a processed image. No external model, TypeSafe account, or paid analysis is required.
+The bundled demo and plan run without credentials. Matching Cloudinary credentials let the saved demo use its authenticated original. Local uploads add signed ingestion and Admin API readback; they do not run analysis, transformations, or approval. No external model or TypeSafe account is required.
 
 ## Start the application
 
@@ -21,9 +21,9 @@ Choose **Storefront image**, **Social preview**, or **Catalog image**. Enter a r
 Prepare this product image for the storefront and send it for approval.
 ```
 
-Select **Preview workflow**. Inspect the proposed output size, stage dependencies, allowed tools, and artifact handoffs. There is no image upload in this checkpoint. The request is displayed as untrusted text, while the selected recipe fixes the plan.
+Select **Load saved demo** for the existing image and its saved verification evidence. This operation never creates a new image or repeats analysis. Select **Preview workflow** to inspect the proposed output, dependencies, tools, and artifact handoffs. The request remains untrusted display text; the selected recipe fixes the plan.
 
-The plan has five stages: upload verification, visual inspection, transformation, policy, and delivery. Transformation and policy both depend on inspection; delivery depends on both branches. They describe planned responsibilities, not operations that have already run.
+The plan has five stages: upload verification, visual inspection, transformation, policy, and delivery. Transformation and policy depend on inspection; delivery depends on both branches. A verified source is marked separately. The other four stages have not run.
 
 ## Inspect the local API
 
@@ -33,7 +33,7 @@ Check capabilities:
 curl http://localhost:3002/api/health
 ```
 
-The response reports `mode: "preview"`. Its capability fields should show `planPreview: true`, with `liveExecution`, `paidAnalysis`, and `modelBackedPlanning` set to `false`.
+The response reports `mode: "preview"`. `planPreview` is true, while `liveExecution`, `paidAnalysis`, and `modelBackedPlanning` are false. `liveIngestion` is true only when uploads are explicitly enabled in configured local development.
 
 Request a plan:
 
@@ -61,21 +61,37 @@ If `.env.local` already exists, keep it and do not overwrite it. Otherwise, copy
 cp .env.example .env.local
 ```
 
-| Variable                            | Intended use                                                         |
-| ----------------------------------- | -------------------------------------------------------------------- |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Browser-safe Cloudinary product environment name                     |
-| `CLOUDINARY_API_KEY`                | Server-side API authentication                                       |
-| `CLOUDINARY_API_SECRET`             | Server-only credential; never prefix with `NEXT_PUBLIC_`             |
-| `DEMO_SESSION_SECRET`               | Reserved for a future reviewer cookie; at least 32 random characters |
-| `ENABLE_LIVE_PIPELINE`              | Keep `false`; the live pipeline is not implemented                   |
-| `ENABLE_PAID_ANALYSIS`              | Keep `false`; paid analysis is not implemented                       |
-| `MAX_UPLOAD_BYTES`                  | Reserved application upload limit, not a platform limit              |
+| Variable                            | Intended use                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Browser-safe Cloudinary product environment name                                 |
+| `CLOUDINARY_API_KEY`                | Server-side API authentication                                                   |
+| `CLOUDINARY_API_SECRET`             | Server-only credential; never prefix with `NEXT_PUBLIC_`                         |
+| `DEMO_SESSION_SECRET`               | Signs HTTP-only review cookies and upload tickets; at least 32 random characters |
+| `ENABLE_LIVE_PIPELINE`              | `true` enables local upload/readback only; production stays read-only            |
+| `ENABLE_PAID_ANALYSIS`              | Keep `false`; paid analysis is not implemented                                   |
+| `MAX_UPLOAD_BYTES`                  | Application limit capped at 4,000,000 bytes; not a platform limit                |
 
 `.env.local` is excluded from Git. Do not share credentials in screenshots, chat, logs, or source files. Only the cloud name belongs in a public environment variable. Restart the development server after editing environment variables.
 
-`cloudinary.configured: true` means the three Cloudinary variables contain non-placeholder values. It does not validate the keys, authenticate a request, or check your product environment. `cloudinary.verified` remains `false`. No authenticated Cloudinary inspection or MCP connection has been verified by this checkpoint.
+`cloudinary.configured: true` means three non-placeholder values are present. The health route does not authenticate keys, so its `cloudinary.verified` stays false. Individual assets have separate readback evidence. No Cloudinary MCP connection was used in this checkpoint.
 
-Changing either enable flag to `true` cannot activate unimplemented code. Live operations remain unavailable until their implementation, authorization, and budget controls are in place.
+Paid AI analysis and full execution remain unavailable regardless of either flag. Only local ingestion is implemented.
+
+## Try a local upload
+
+Set `ENABLE_LIVE_PIPELINE=true` in the existing `.env.local` and restart the server. Choose a JPEG, PNG, or WebP in **Or choose your own image**, then select **Upload & verify image**. Bytes go directly to Cloudinary with fixed authenticated delivery, no overwrite, format limits, context, tags, and the `media-pipeline/originals` asset folder.
+
+The server reads the immutable asset ID and compares the decoded image with the signed ten-minute intent. The original is available for review through HTTP-only, session-bound cookies. Verification is not approval. The latest upload replaces the current image-review cookie; multi-image history is not implemented.
+
+Client checks improve feedback but are not a security boundary. The server checks the actual bytes after upload. Do not expose ingestion publicly without provider-enforced upload limits, authentication, rate limits, retention rules, and cost controls.
+
+## Reuse the committed demo
+
+Commit both `public/demo/product-shoe.jpg` and `fixtures/demo-image.json`. Matching Cloudinary server credentials let **Load saved demo** sign access to the existing original using local code. Its verification timestamp is historical evidence, not a fresh Admin API check. No image is uploaded or generated; ordinary delivery still uses bandwidth.
+
+The sample asset is retained for this purpose. If it is unavailable or credentials do not match, the bundled copy remains usable. Never commit secrets or signed URLs to the fixture. Signed URLs are shareable and do not expire automatically; cookie expiry does not revoke an obtained URL.
+
+Production is read-only even with `ENABLE_LIVE_PIPELINE=true`. The full execution route still returns `501`. Public upload is a separate hardening checkpoint.
 
 ## Run validation
 
@@ -94,14 +110,15 @@ The browser suite starts its own server on port 3003 and uses `.next-test` so it
 
 ## Troubleshooting
 
-| Symptom                                  | What to check                                                               |
-| ---------------------------------------- | --------------------------------------------------------------------------- |
-| Page cannot be reached                   | Keep `pnpm dev` running and use the port printed in its output              |
-| Credentials appear missing after an edit | Restart `pnpm dev`; configuration presence is not authentication            |
-| Preview returns `400`                    | Choose a supported recipe and a non-empty request of at most 500 characters |
-| Preview returns `413` or `415`           | Keep the body below 4,096 bytes and send `Content-Type: application/json`   |
-| Execute returns `501`                    | Expected: only plan preview is available                                    |
-| No processed image appears               | Expected: no upload, analysis, transformation, or delivery has run          |
+| Symptom                                  | What to check                                                                                  |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Page cannot be reached                   | Keep `pnpm dev` running and use the port printed in its output                                 |
+| Credentials appear missing after an edit | Restart `pnpm dev`; configuration presence is not authentication                               |
+| Preview returns `400`                    | Choose a supported recipe and a non-empty request of at most 500 characters                    |
+| Preview returns `413` or `415`           | Keep the body below 4,096 bytes and send `Content-Type: application/json`                      |
+| Execute returns `501`                    | Expected: full execution remains unavailable                                                   |
+| Own-image input is disabled              | Restart after configuration changes; local uploads require the enable flag and all credentials |
+| No transformed output appears            | Expected: this checkpoint verifies the original only                                           |
 
 ## Before a live checkpoint
 

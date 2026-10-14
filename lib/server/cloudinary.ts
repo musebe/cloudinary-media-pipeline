@@ -20,3 +20,15 @@ export function getCloudinary() {
   cloudinary.config({ ...credentials.data, secure: true });
   return cloudinary;
 }
+
+export async function getAssetById(assetId: string): Promise<unknown> {
+  const api = getCloudinary().api;
+  // SDK 2.11 implements this documented method but omits its TypeScript declaration.
+  const readAsset: unknown = Reflect.get(api, "resource_by_asset_id");
+  if (typeof readAsset !== "function")
+    throw new Error("Asset-ID readback is unavailable.");
+  const result: unknown = await readAsset.call(api, assetId, {
+    timeout: 15000,
+  });
+  return result;
+}

@@ -14,6 +14,7 @@ test("health stays truthful and execution remains unavailable", async ({
     capabilities: {
       planPreview: true,
       liveExecution: false,
+      liveIngestion: false,
       paidAnalysis: false,
       modelBackedPlanning: false,
     },
@@ -32,6 +33,32 @@ test("health stays truthful and execution remains unavailable", async ({
     error:
       "Live execution is not available in this checkpoint. Preview a plan instead.",
   });
+});
+
+test("serves the reusable demo and denies disabled or cross-origin uploads", async ({
+  request,
+}) => {
+  const demo = await request.get("/api/demo?recipe=social");
+  expect(demo.status()).toBe(200);
+  const result = await demo.json();
+  expect(result.noNewMediaOperations).toBe(true);
+  expect(result.plan.output).toMatchObject({ width: 1200, height: 630 });
+  expect(["bundled-demo", "cloudinary-demo"]).toContain(result.image.source);
+  expect(result).not.toHaveProperty("apiKey");
+  const crossOrigin = await request.post("/api/ingestions/sign", {
+    headers: { Origin: "https://example.invalid" },
+    data: {},
+  });
+  expect(crossOrigin.status()).toBe(403);
+  const disabled = await request.post("/api/ingestions/sign", {
+    headers: { Origin: "http://127.0.0.1:3003" },
+    data: {},
+  });
+  expect(disabled.status()).toBe(503);
+  const unauthenticated = await request.get(
+    "/api/ingestions/image?asset=7b90f7bbe195b9431f4434172cc15bac",
+  );
+  expect(unauthenticated.status()).toBe(401);
 });
 
 test("keeps instruction-like text display-only inside the fixed graph", async ({

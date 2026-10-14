@@ -30,7 +30,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "pnpm exec next dev --hostname 127.0.0.1 --port 3003",
-    env: { MEDIA_PIPELINE_TEST_BUILD: "true" },
+    env: { MEDIA_PIPELINE_TEST_BUILD: "true", ENABLE_LIVE_PIPELINE: "false" },
     url: baseURL + "/api/health",
     reuseExistingServer: false,
     timeout: 120_000,

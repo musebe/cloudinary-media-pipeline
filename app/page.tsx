@@ -22,7 +22,7 @@ export default async function Home() {
             </p>
           </div>
         </div>
-        <Badge variant="outline">Local preview · no media operations</Badge>
+        <Badge variant="outline">Saved demo · no generation needed</Badge>
       </header>
 
       <section className="flex max-w-2xl flex-col gap-3 pt-3 sm:pt-6">
@@ -34,17 +34,17 @@ export default async function Home() {
           One request. Every handoff visible.
         </h1>
         <p className="text-base leading-relaxed text-muted-foreground">
-          Choose an image output and inspect the upload, analysis,
-          transformation, and approval gates before anything runs.
+          Load the saved product image or verify your own upload. Follow the
+          handoffs that must complete before release.
         </p>
       </section>
 
       <PipelineWorkbench configuration={status} />
 
       <footer className="mt-auto pb-2 text-xs leading-relaxed text-muted-foreground">
-        Plan preview only. No image has been uploaded, analyzed, transformed, or
-        approved. Live execution and model-backed planning are not available
-        yet.
+        Upload verification and reusable demo input are available. Analysis,
+        transformations, human approval, and final release are the next
+        checkpoints. No model-backed agent run is claimed.
       </footer>
     </main>
   );

@@ -2,6 +2,47 @@ import { describe, expect, it } from "vitest";
 import { getConfigurationStatus } from "./configuration";
 
 describe("configuration status", () => {
+  const configured = {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "test-cloud",
+    CLOUDINARY_API_KEY: "123456789",
+    CLOUDINARY_API_SECRET: "synthetic-server-secret",
+    DEMO_SESSION_SECRET: "s".repeat(32),
+    ENABLE_LIVE_PIPELINE: "true",
+  };
+  it("permits explicit local ingestion but never enables uploads in production", () => {
+    expect(
+      getConfigurationStatus({ ...configured, NODE_ENV: "development" })
+        .capabilities.liveIngestion,
+    ).toBe(true);
+    expect(
+      getConfigurationStatus({ ...configured, NODE_ENV: "production" })
+        .capabilities.liveIngestion,
+    ).toBe(false);
+    expect(
+      getConfigurationStatus({ ...configured, NODE_ENV: "test" }).capabilities
+        .liveIngestion,
+    ).toBe(false);
+    expect(
+      getConfigurationStatus({
+        NODE_ENV: "development",
+        ENABLE_LIVE_PIPELINE: "true",
+      }).capabilities.liveIngestion,
+    ).toBe(false);
+  });
+  it("bounds the upload limit and rejects invalid configuration", () => {
+    expect(
+      getConfigurationStatus({ MAX_UPLOAD_BYTES: "9000000" }).maxUploadBytes,
+    ).toBe(4000000);
+    expect(
+      getConfigurationStatus({ MAX_UPLOAD_BYTES: "1000000" }).maxUploadBytes,
+    ).toBe(1000000);
+    expect(
+      getConfigurationStatus({ MAX_UPLOAD_BYTES: "NaN" }).maxUploadBytes,
+    ).toBe(4000000);
+    expect(
+      getConfigurationStatus({ MAX_UPLOAD_BYTES: "-1" }).maxUploadBytes,
+    ).toBe(4000000);
+  });
   it("keeps the local preview usable without credentials", () => {
     const status = getConfigurationStatus({});
     expect(status.cloudinary.configured).toBe(false);

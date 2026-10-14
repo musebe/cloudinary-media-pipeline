@@ -22,3 +22,19 @@ Verified validation:
 Browser screenshots remain in the ignored `.test-artifacts/` folder. The test server uses port 3003 and a separate `.next-test` output directory, leaving the editor's server intact. The isolated production check used `MEDIA_PIPELINE_TEST_BUILD=true pnpm check`.
 
 Next: constrained ingestion and authenticated readback, once live-operation scope and budget are agreed.
+
+## October 14, 2026 — authenticated ingestion and reusable demo
+
+Added a committed product-image source and a **Load saved demo** action. Local upload uses signed direct delivery to Cloudinary's image endpoint, fixed authenticated type, an immutable generated public ID, overwrite disabled, allowed formats, a dedicated asset folder, and session context. Finalization reads the stored asset by immutable ID and checks format, actual bytes, decoded dimensions, tag, identity, and session ownership against the signed intent.
+
+User-authorized verification used exactly one 379,132-byte JPEG upload and two Admin API reads. The original is 1870 × 1250. Authenticated original delivery matched the bundled image's SHA-256 checksum. The asset was retained following the request for a reusable deployed demo. Its reference, version, timestamp, and checksum are stored in `fixtures/demo-image.json`; no credentials or signed URL are stored there.
+
+Demo loading reuses that historical verification record without Admin API reads, uploads, AI calls, or transformations. Signing its existing original is local code. Browser delivery still uses bandwidth. The bundled copy works without matching credentials and is the fallback if Cloudinary delivery fails.
+
+Upload tickets expire after ten minutes. Reviewer and current-image receipts use HTTP-only, session-bound cookies; receipts are not placed in URL query strings. Original display uses `CldImage` with the authorized URL preserved and automatic transformations disabled. That prevents accidental new authenticated derivatives in this checkpoint.
+
+Production uploads are disabled regardless of the environment flag. Authentication, provider-enforced upload limits, rate limits, retention, and cost controls are required before public ingestion. Cloudinary signed URLs remain shareable and do not expire automatically; cookie expiry does not revoke one already obtained.
+
+No AI analysis, generation, transformed output, approval, or final release has run. The plan UI marks ingestion evidence separately from the four pending stages. Full execution still returns `501`.
+
+Validation: formatting, ESLint, TypeScript, 195 unit checks, 14 browser/API checks, and the production build passed. A production-server smoke test returned HTTP 200 for health and the saved-demo loader, reused the version-pinned snapshot, and confirmed uploads stay disabled. Desktop and mobile browser checks intercepted Cloudinary delivery with the identical bundled file, verified the exact authorized `CldImage` source without a transformation `srcset`, and found no runtime errors or horizontal overflow. This isolated browser check added no provider operations; real original delivery was checked in the authorized live test above.

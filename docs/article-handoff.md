@@ -24,7 +24,7 @@
 
 The [Raven paper](https://arxiv.org/abs/2609.33439) studies composable model harnesses. Our current preview is a fixed dependency graph, not Raven or an AI multi-agent system. [Next Cloudinary](https://next.cloudinary.dev/) supplies the Next.js media integration. Confirm [Analyze API](https://cloudinary.com/documentation/analyze_api_guide) subscriptions and [access-control](https://cloudinary.com/documentation/control_access_to_media) requirements before live operations.
 
-Current files: `lib/pipeline/` contains the contracts and graph checks; `app/api/pipelines/` contains preview and unavailable execution routes; `components/pipeline-workbench.tsx` contains the demo. Credentials remain server-side. Source, live demo, final evidence, and article draft are pending. The preview requires no paid calls.
+Current files: `lib/pipeline/` contains graph contracts; `lib/ingestion/` contains image and token checks; `app/api/ingestions/` implements local signed upload/readback. `fixtures/demo-image.json` and `public/demo/product-shoe.jpg` preserve the source. One authorized upload and two Admin reads passed; no AI analysis or generation ran. Repository, deployment, final pipeline evidence, and article remain pending.
 
 | Primary keyword           | Secondary keywords                                               | Long-tail keywords                                                                  | Meta title                                              | Meta description                                                                                                                    |
 | ------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -36,7 +36,7 @@ Current files: `lib/pipeline/` contains the contracts and graph checks; `app/api
 
 **Cloudinary entities:** signed uploads, immutable asset IDs, Admin API readback, analysis evidence, transformations, authenticated media, and delivery access control. **Constraints:** analysis add-ons, quota, authenticated derivatives, and model costs must be verified; signed URLs do not expire automatically. Region requirements are not assessed yet.
 
-**Original evidence:** only local preview validation at this stage; see [build log](./build-log.md). **Internal links:** select current Cloudinary Blog posts on signed upload and access control during the overlap audit. **Direct-answer topics:** handoff validation, trustworthy evidence, failure handling, and approval before delivery.
+**Original evidence:** validated plan, authenticated ingestion, byte-identical original delivery, and a persisted reusable demo; see [build log](./build-log.md). **Internal links:** select current Cloudinary Blog posts on signed upload and access control during the overlap audit. **Direct-answer topics:** handoff validation, trustworthy evidence, failure handling, and approval before delivery.
 
 **Media and accessibility:** capture one readable workflow diagram and real input/output evidence only after live validation; redact secrets and use descriptive alt text. **Structured data:** assess `TechArticle` for the eventual tutorial; emit only visible, verified content.
 

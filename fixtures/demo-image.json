@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "media-pipeline.demo.v1",
+  "imagePath": "/demo/product-shoe.jpg",
+  "alt": "A white sneaker with a blue lining against a light blue background",
+  "sourceUrl": "https://res.cloudinary.com/demo/image/upload/cld-sample-5.jpg",
+  "cloudinary": {
+    "cloudName": "demo-article-projects",
+    "sha256": "0d553566746ef0b687ee55ed2ee017d289eec027479d15bbd5687e61507573c9",
+    "asset": {
+      "assetId": "7b90f7bbe195b9431f4434172cc15bac",
+      "publicId": "media-pipeline/originals/371bb616-e7f1-49fa-ae89-12c7c49ab058",
+      "version": 1791984727,
+      "width": 1870,
+      "height": 1250,
+      "bytes": 379132,
+      "format": "jpg",
+      "resourceType": "image",
+      "deliveryType": "authenticated",
+      "verifiedAt": "2026-10-14T13:32:09.745Z",
+      "recipe": "storefront",
+      "prompt": "Prepare the saved product-image demo for this output and require approval before release.",
+      "status": "verified",
+      "executionComplete": false
+    }
+  }
+}

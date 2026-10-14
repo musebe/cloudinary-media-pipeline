@@ -41,7 +41,13 @@ const artifactLabels: Record<PipelineArtifactKind, string> = {
   delivery_manifest: "Delivery manifest",
 };
 
-function PlannedStage({ node }: { node: PipelineNode }) {
+function PlannedStage({
+  node,
+  verified = false,
+}: {
+  node: PipelineNode;
+  verified?: boolean;
+}) {
   const Icon = nodeIcons[node.id];
   return (
     <Card size="sm" data-testid={"stage-" + node.id} className="min-w-0">
@@ -53,7 +59,9 @@ function PlannedStage({ node }: { node: PipelineNode }) {
               <h3>{node.label}</h3>
             </CardTitle>
           </div>
-          <Badge variant="outline">Planned</Badge>
+          <Badge variant={verified ? "secondary" : "outline"}>
+            {verified ? "Verified" : "Planned"}
+          </Badge>
         </div>
         <CardDescription>
           {node.dependsOn.length
@@ -102,7 +110,13 @@ function DependencyArrow() {
   );
 }
 
-export function PipelinePlanView({ plan }: { plan: PipelinePlan }) {
+export function PipelinePlanView({
+  plan,
+  assetVerified = false,
+}: {
+  plan: PipelinePlan;
+  assetVerified?: boolean;
+}) {
   const byId = new Map(plan.nodes.map((node) => [node.id, node]));
   return (
     <div className="flex flex-col gap-3" data-testid="pipeline-plan">
@@ -114,11 +128,13 @@ export function PipelinePlanView({ plan }: { plan: PipelinePlan }) {
             : "Crop requires review"}
         </p>
         <span className="text-xs text-muted-foreground">
-          No operations performed
+          {assetVerified
+            ? "Ingestion only · no final release"
+            : "No operations performed"}
         </span>
       </div>
       <div>
-        <PlannedStage node={byId.get("ingest")!} />
+        <PlannedStage node={byId.get("ingest")!} verified={assetVerified} />
         <DependencyArrow />
         <PlannedStage node={byId.get("inspect")!} />
         <DependencyArrow />

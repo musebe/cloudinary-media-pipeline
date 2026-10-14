@@ -14,7 +14,7 @@ async function guardLocalRequests(page: Page) {
   return externalRequests;
 }
 
-test("previews five typed stages without loading media or external services", async ({
+test("previews five typed stages with a bundled image and no external services", async ({
   page,
 }, testInfo) => {
   const externalRequests = await guardLocalRequests(page);
@@ -46,7 +46,9 @@ test("previews five typed stages without loading media or external services", as
     delivery.getByText("cloudinary.delivery.sign", { exact: true }),
   ).toBeVisible();
 
-  await expect(page.locator("img, video, input[type=file]")).toHaveCount(0);
+  await expect(page.locator("img")).toHaveCount(1);
+  await expect(page.locator("video")).toHaveCount(0);
+  await expect(page.getByLabel("Or choose your own image")).toBeDisabled();
   expect([...externalRequests]).toEqual([]);
   expect(
     await page.evaluate(
@@ -125,6 +127,37 @@ test("shows a friendly alert when the preview service returns non-JSON", async (
   );
   await expect(alert).not.toContainText("Unexpected token");
   await expect(page.getByTestId("pipeline-plan")).toHaveCount(0);
+});
+
+test("loads the saved demo without uploading or generating an image", async ({
+  page,
+}) => {
+  const externalRequests = await guardLocalRequests(page);
+  const mediaWrites: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.method() === "POST" &&
+      /ingestions|cloudinary\.com/.test(request.url())
+    )
+      mediaWrites.push(request.url());
+  });
+  // Exercise the loader offline without asking Cloudinary to deliver any media.
+  await page.route("**/api/demo?*", async (route) => {
+    const response = await route.fetch();
+    const result = await response.json();
+    result.image.imageUrl = "/demo/product-shoe.jpg";
+    await route.fulfill({ response, json: result });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Load saved demo" }).click();
+  await expect(page.getByTestId("pipeline-plan")).toBeVisible();
+  await expect(page.getByTestId("source-image").locator("img")).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Saved demo loaded" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Or choose your own image")).toBeDisabled();
+  expect(mediaWrites).toEqual([]);
+  expect([...externalRequests]).toEqual([]);
 });
 
 test("keeps primary and supporting text readable on light surfaces", async ({
