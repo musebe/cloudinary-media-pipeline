@@ -62,3 +62,15 @@ Validation passed: formatting, lint, TypeScript, 464 unit tests, 24 browser/API 
 The saved storefront WebP now renders in **Output & release** immediately. Selecting another recipe switches the recorded preview without creating a run, approval, transformation, or external request. **Review this output** starts the session-bound review. Already-released runs retain their download links when the same demo is loaded again.
 
 The browser/API suite now passes 26 checks, including first-load visibility, eager loading, absence of automatic mutations, unchanged release locks, and recipe-specific saved previews. The bundled flow also works with no Cloudinary credentials, using only the configured reviewer-session secret.
+
+## October 14, 2026 — GitHub and Vercel publication
+
+Published [the public repository](https://github.com/musebe/cloudinary-media-pipeline) and [the live demo](https://cloudinary-media-pipeline.vercel.app/). GitHub pushes are connected to Vercel. Explicit Next.js and frozen-lockfile pnpm settings are committed in `vercel.json`; private local files are excluded from CLI deployment.
+
+Clarified the README's fresh-clone setup, session-secret requirement, public demo behavior, and test actions before publication. Scanned 170 Git-history blobs for the local credentials; no matches or tracked private environment files were found.
+
+The hosted app uses a separately generated sensitive reviewer-session secret. Cloudinary API credentials were not added to Vercel. Health returns HTTP 200 with saved execution enabled and uploads, live execution, paid analysis, and model-backed planning disabled. `cloudinary.configured: false` is intentional in this deployment because it reuses committed, verified outputs.
+
+Verified all three hosted outputs through preparation, incomplete-review rejection, approval, release, and download. Pre-release downloads returned 403; early release and incomplete approval returned 409; approved release and download returned 200. Downloaded files matched all three recorded SHA-256 values. The hosted benchmark passed 30/30 contract checks with zero false releases.
+
+Desktop and mobile browser checks confirmed the first output renders immediately, review and release work, and a released session restores after refresh. No page errors or horizontal overflow were observed. The production request-log check found no HTTP 500 entries. This is saved-demo validation, not a new live Cloudinary processing test.
