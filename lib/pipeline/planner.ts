@@ -18,9 +18,9 @@ const stageDefinitions: ReadonlyArray<PipelineNode> = [
   },
   {
     id: "inspect",
-    label: "Collect visual evidence",
+    label: "Inspect image metadata",
     dependsOn: ["ingest"],
-    tools: ["cloudinary.analyze.visual"],
+    tools: ["application.metadata.inspect"],
     inputs: [{ kind: "verified_asset", from: "ingest" }],
     output: "inspection_evidence",
   },
@@ -28,7 +28,7 @@ const stageDefinitions: ReadonlyArray<PipelineNode> = [
     id: "transform",
     label: "Prepare the fixed format",
     dependsOn: ["inspect"],
-    tools: ["cloudinary.transform.url"],
+    tools: ["cloudinary.transform.eager", "application.delivery.verify"],
     inputs: [
       { kind: "verified_asset", from: "ingest" },
       { kind: "inspection_evidence", from: "inspect" },
@@ -155,7 +155,7 @@ export function createPipelinePlan(input: unknown): PipelinePlan {
     notes: [
       "Local plan preview only: no uploads, analysis, transformations, or delivery have run.",
       "The request is displayed as untrusted text; it cannot add tools or change the selected recipe.",
-      "These are deterministic workflow stages, not AI agents. Live execution is not implemented yet.",
+      "These are deterministic workflow stages, not AI agents. Running the saved demo reuses verified outputs; paid analysis remains off.",
     ],
   });
 }

@@ -19,7 +19,7 @@ export function getConfigurationStatus(values: EnvironmentValues) {
   );
   const requestedLimit = Number(values.MAX_UPLOAD_BYTES ?? 4000000);
   return {
-    mode: "preview" as const,
+    mode: "demo" as const,
     cloudinary: {
       configured: cloudinaryConfigured,
       verified: false,
@@ -36,7 +36,12 @@ export function getConfigurationStatus(values: EnvironmentValues) {
         values.NODE_ENV === "development" &&
         cloudinaryConfigured &&
         reviewerSessionConfigured,
-      liveExecution: false,
+      savedExecution: reviewerSessionConfigured,
+      liveExecution:
+        values.ENABLE_LIVE_PIPELINE === "true" &&
+        values.NODE_ENV === "development" &&
+        cloudinaryConfigured &&
+        reviewerSessionConfigured,
       paidAnalysis: false,
       modelBackedPlanning: false,
     },

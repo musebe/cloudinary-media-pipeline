@@ -46,3 +46,13 @@ User-authorized processing created exactly three standard transformations from t
 Committed the actual downloaded derivatives and their historical evidence in `public/demo/` and `fixtures/demo-outputs.json`. The demo rechecks their local bytes, so running it after deployment needs no new transformation or provider analysis. The three files are 44,328, 38,150, and 67,144 bytes respectively.
 
 The new pure release contracts require matching source/version/recipe, inspection facts, a verified derivative, an unexpired run, and a bound human approval. Metadata inspection records technical facts only; content and rights remain explicit reviewer attestations. Focused execution and transformation tests use local synthetic buffers and mocked providers, not additional live calls.
+
+## October 14, 2026 — approval, release, and evaluation
+
+Completed execution, review, rejection, restart, restore, output proxy, and downloadable evidence routes. Saved runs recheck the committed WebP bytes without provider calls. Local uploaded images can run one fixed eager transformation, refresh source/derived readback, decode the delivered image, and store its hash. Request text cannot change the operation allowlist.
+
+The interface displays source and output, five stage outcomes, three explicit human attestations, and a download action only after successful release. Review binds the run, source version, recipe, and derivative hash. Release verifies delivery again before returning a session-proxy manifest; the proxy never redirects to a shareable Cloudinary URL. Runs last twenty minutes. Signed, bounded compressed cookies support long Unicode requests, but are not encrypted or a durable audit database. Replayed old cookies cannot be reliably revoked without server state.
+
+Added a reproducible 30-case release-contract benchmark: three allowed recipes and 27 expected blocks. Measured 30/30 expected decisions and codes, zero false releases, and zero false blocks. This is deterministic contract coverage, not AI accuracy, content safety, legal verification, or the originally proposed model-backed comparison.
+
+Validation passed: formatting, lint, TypeScript, 464 unit tests, 24 browser/API checks, and the production build. Production-server desktop and mobile runs loaded, reviewed, released, and downloaded the 44,328-byte storefront file with no external requests, browser errors, or horizontal overflow. All three saved output hashes matched in API tests; cross-session, stale-run, cross-origin, incomplete-review, and premature-download checks blocked as expected. No additional live provider operations were used. Compiled client assets contained neither local server secret. Next.js file tracing includes the saved WebP files for serverless verification.

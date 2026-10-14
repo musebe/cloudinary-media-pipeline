@@ -18,19 +18,27 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      testMatch: "preview.spec.ts",
+      testMatch: /(preview|execution)\.spec\.ts/,
       use: { viewport: { width: 1280, height: 900 } },
     },
     {
       name: "mobile",
-      testMatch: "preview.spec.ts",
+      testMatch: /(preview|execution)\.spec\.ts/,
       use: { viewport: { width: 390, height: 844 } },
     },
     { name: "local-api", testMatch: "api.spec.ts" },
   ],
   webServer: {
     command: "pnpm exec next dev --hostname 127.0.0.1 --port 3003",
-    env: { MEDIA_PIPELINE_TEST_BUILD: "true", ENABLE_LIVE_PIPELINE: "false" },
+    env: {
+      MEDIA_PIPELINE_TEST_BUILD: "true",
+      ENABLE_LIVE_PIPELINE: "false",
+      DEMO_SESSION_SECRET:
+        "synthetic-browser-test-session-secret-at-least-32-characters",
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "",
+      CLOUDINARY_API_KEY: "",
+      CLOUDINARY_API_SECRET: "",
+    },
     url: baseURL + "/api/health",
     reuseExistingServer: false,
     timeout: 120_000,

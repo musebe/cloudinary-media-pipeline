@@ -1,7 +1,9 @@
 import { connection } from "next/server";
+import Link from "next/link";
 import { Cloud, GitBranch } from "lucide-react";
 import { PipelineWorkbench } from "@/components/pipeline-workbench";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { readConfigurationStatus } from "@/lib/server/configuration";
 
 export default async function Home() {
@@ -22,7 +24,12 @@ export default async function Home() {
             </p>
           </div>
         </div>
-        <Badge variant="outline">Saved demo · no generation needed</Badge>
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant="outline">Saved demo · no generation needed</Badge>
+          <Button variant="ghost" asChild className="min-h-11">
+            <Link href="/benchmark">Release checks</Link>
+          </Button>
+        </div>
       </header>
 
       <section className="flex max-w-2xl flex-col gap-3 pt-3 sm:pt-6">
@@ -34,17 +41,17 @@ export default async function Home() {
           One request. Every handoff visible.
         </h1>
         <p className="text-base leading-relaxed text-muted-foreground">
-          Load the saved product image or verify your own upload. Follow the
-          handoffs that must complete before release.
+          Compare a source image with its Cloudinary output. Inspect the
+          evidence, approve the result, and release a verified file.
         </p>
       </section>
 
       <PipelineWorkbench configuration={status} />
 
       <footer className="mt-auto pb-2 text-xs leading-relaxed text-muted-foreground">
-        Upload verification and reusable demo input are available. Analysis,
-        transformations, human approval, and final release are the next
-        checkpoints. No model-backed agent run is claimed.
+        Saved demo outputs are public examples. The gate controls this
+        application&apos;s release API. Metadata inspection does not replace
+        content review; no model-backed agent run is claimed.
       </footer>
     </main>
   );

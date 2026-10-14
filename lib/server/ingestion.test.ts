@@ -212,7 +212,7 @@ describe("review sessions and signed handoffs", () => {
         httpOnly: true,
         sameSite: "strict",
         secure: true,
-        path: "/api/ingestions/image",
+        path: "/api",
         maxAge: 86400,
       },
     );

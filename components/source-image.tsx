@@ -5,7 +5,7 @@ import { CldImage } from "next-cloudinary";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { bundledDemo, type DemoImage } from "@/lib/demo";
+import { bundledDemo, demoFixture, type DemoImage } from "@/lib/demo";
 
 export function SourceImage({ image }: { image: DemoImage }) {
   const [failed, setFailed] = useState(false);
@@ -31,6 +31,11 @@ export function SourceImage({ image }: { image: DemoImage }) {
             // Preserve the server-authorized original. Automatic responsive transformations
             // would alter the signed path and create unapproved derivatives in this stage.
             <CldImage
+              config={
+                image.source === "cloudinary-demo"
+                  ? { cloud: { cloudName: demoFixture.cloudinary!.cloudName } }
+                  : undefined
+              }
               src={image.asset.publicId}
               version={image.asset.version}
               deliveryType="authenticated"

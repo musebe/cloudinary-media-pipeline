@@ -120,8 +120,8 @@ test("shows a friendly alert when the preview service returns non-JSON", async (
   await page.getByRole("button", { name: "Preview workflow" }).click();
   const alert = page
     .getByRole("alert")
-    .filter({ hasText: "Preview not prepared" });
-  await expect(alert).toContainText("Preview not prepared");
+    .filter({ hasText: "Request not completed" });
+  await expect(alert).toContainText("Request not completed");
   await expect(alert).toContainText(
     "The preview service returned an unexpected response. Please try again.",
   );
@@ -150,10 +150,10 @@ test("loads the saved demo without uploading or generating an image", async ({
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Load saved demo" }).click();
-  await expect(page.getByTestId("pipeline-plan")).toBeVisible();
+  await expect(page.getByTestId("run-result")).toBeVisible();
   await expect(page.getByTestId("source-image").locator("img")).toBeVisible();
   await expect(
-    page.getByRole("status").filter({ hasText: "Saved demo loaded" }),
+    page.getByRole("status").filter({ hasText: "Saved output ready" }),
   ).toBeVisible();
   await expect(page.getByLabel("Or choose your own image")).toBeDisabled();
   expect(mediaWrites).toEqual([]);

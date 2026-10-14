@@ -31,7 +31,7 @@ const receiptSchema = z
   })
   .strict();
 
-function sessionSecret() {
+export function sessionSecret() {
   const secret = process.env.DEMO_SESSION_SECRET?.trim();
   if (!secret || secret.length < 32)
     throw new RequestInputError("The reviewer session is not configured.", 503);
@@ -83,7 +83,7 @@ export async function getReviewerSession(create = false) {
   }
   if (!create)
     throw new RequestInputError(
-      "The review session has expired. Upload the image again.",
+      "The review session has expired. Load the demo or upload the image again.",
       401,
     );
   const session = {
@@ -194,7 +194,7 @@ export async function storeReviewReceipt(
       httpOnly: true,
       sameSite: "strict",
       secure: process.env.NODE_ENV === "production",
-      path: "/api/ingestions/image",
+      path: "/api",
       maxAge: SESSION_SECONDS,
     },
   );

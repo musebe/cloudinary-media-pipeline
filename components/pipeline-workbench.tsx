@@ -44,6 +44,13 @@ import { Input } from "@/components/ui/input";
 import { SourceImage } from "@/components/source-image";
 import { bundledDemo, demoImageSchema, type DemoImage } from "@/lib/demo";
 import { uploadAndVerify, validateSelectedImage } from "@/lib/client/ingestion";
+import { requestExecutionAction, readApiJson } from "@/lib/client/execution";
+import {
+  executionResponseSchema,
+  type ExecutionResponse,
+  type DeliveryManifest,
+} from "@/lib/execution/requests";
+import { RunResult, type ReviewChecks } from "@/components/run-result";
 
 const exampleRequests: Record<PipelineRecipe, string> = {
   storefront:
@@ -88,14 +95,149 @@ export function PipelineWorkbench({
   const [plan, setPlan] = useState<PipelinePlan | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [image, setImage] = useState<DemoImage>(bundledDemo);
+  const [execution, setExecution] = useState<ExecutionResponse | null>(null);
+  const [manifest, setManifest] = useState<DeliveryManifest | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const selectedRecipe = recipeMetadata.find((item) => item.id === recipe)!;
 
+  function previewOnly() {
+    setError(null);
+    clearRun();
+    startTransition(async () => {
+      try {
+        setPlan(await requestPlan(recipe, prompt));
+        setStatusMessage("Workflow plan ready. No media operations performed.");
+      } catch (failure) {
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : "The preview could not be prepared.",
+        );
+      }
+    });
+  }
+
+  function clearRun() {
+    setExecution(null);
+    setManifest(null);
+  }
+
+  async function prepareOutput(source: "demo" | "upload", assetId?: string) {
+    const { result } = await requestExecutionAction("execute", {
+      source,
+      recipe,
+      prompt,
+      ...(source === "upload" ? { assetId } : {}),
+    });
+    setExecution(result);
+    setManifest(null);
+    if (source === "demo")
+      setImage({
+        imageUrl: bundledDemo.imageUrl,
+        alt: bundledDemo.alt,
+        asset: result.run.asset,
+        width: result.run.asset.width,
+        height: result.run.asset.height,
+        source: "cloudinary-demo",
+      });
+    setStatusMessage(
+      source === "demo"
+        ? "Saved output ready for review. No new images or transformations created."
+        : "Cloudinary output verified. Review it before release.",
+    );
+  }
+
+  function runAction(
+    action: "review" | "release" | "restart",
+    decision?: "approve" | "reject",
+    checks?: ReviewChecks,
+  ) {
+    if (!execution) return;
+    setError(null);
+    startTransition(async () => {
+      try {
+        const response = await requestExecutionAction(action, {
+          runId: execution.run.id,
+          ...(action === "review" ? { decision, checks } : {}),
+        });
+        setExecution(response.result);
+        setManifest(response.manifest);
+        setStatusMessage(
+          action === "release"
+            ? "Delivery verified. Your approved WebP is ready to download."
+            : action === "restart"
+              ? "New review started. Previous approval was cleared."
+              : decision === "reject"
+                ? "Output rejected. Release stays locked."
+                : "Approval saved. Verify delivery to release the output.",
+        );
+      } catch (failure) {
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : "The request did not complete.",
+        );
+      }
+    });
+  }
+
+  function resumeReview() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/pipelines/current", {
+          signal: AbortSignal.timeout(10_000),
+        });
+        const restored = executionResponseSchema.parse(
+          await readApiJson(response),
+        );
+        setExecution(restored);
+        setManifest(null);
+        setFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        setRecipe(restored.run.recipe);
+        setPrompt(restored.run.prompt);
+        setPlan(await requestPlan(restored.run.recipe, restored.run.prompt));
+        setImage({
+          imageUrl:
+            restored.run.kind === "demo"
+              ? bundledDemo.imageUrl
+              : `/api/ingestions/image?asset=${restored.run.asset.assetId}`,
+          asset: restored.run.asset,
+          source: restored.run.kind === "demo" ? "cloudinary-demo" : "upload",
+          width: restored.run.asset.width,
+          height: restored.run.asset.height,
+          alt:
+            restored.run.kind === "demo"
+              ? bundledDemo.alt
+              : "Uploaded source image",
+        });
+        if (restored.run.status === "released") {
+          const released = await requestExecutionAction("release", {
+            runId: restored.run.id,
+          });
+          setExecution(released.result);
+          setManifest(released.manifest);
+        }
+        setStatusMessage(
+          "Previous run restored from this browser's review session.",
+        );
+      } catch (failure) {
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : "There is no previous run to restore.",
+        );
+      }
+    });
+  }
+
   function loadSavedDemo() {
     setError(null);
+    clearRun();
     setStatusMessage("Loading saved demo…");
     startTransition(async () => {
       try {
@@ -115,15 +257,16 @@ export function PipelineWorkbench({
           })
           .strict()
           .parse(await response.json());
-        setImage(result.image);
+        setImage({ ...result.image, imageUrl: bundledDemo.imageUrl });
         const nextPlan = validatePipelinePlan(result.plan);
-        setPlan(nextPlan);
-        setPrompt(nextPlan.prompt);
+        setPlan(await requestPlan(nextPlan.recipe, prompt));
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
         setStatusMessage(
           "Saved demo loaded. No new images generated or uploaded.",
         );
+        if (configuration.capabilities.savedExecution)
+          await prepareOutput("demo");
       } catch {
         setError(
           "The saved demo could not be loaded. The bundled image is still available.",
@@ -138,6 +281,7 @@ export function PipelineWorkbench({
     if (!selected.success) return;
     setRecipe(selected.data);
     setPlan(null);
+    clearRun();
     setStatusMessage("");
     setError(null);
   }
@@ -146,6 +290,7 @@ export function PipelineWorkbench({
     event.preventDefault();
     setError(null);
     setPlan(null);
+    clearRun();
     startTransition(async () => {
       try {
         if (file) {
@@ -166,12 +311,19 @@ export function PipelineWorkbench({
           setPlan(result.plan);
           setFile(null);
           if (fileInputRef.current) fileInputRef.current.value = "";
-          setStatusMessage(
-            "Upload verified. Analysis, formatting, and approval have not run.",
-          );
+          setStatusMessage("Upload verified. Preparing your fixed output…");
+          await prepareOutput("upload", result.asset.assetId);
         } else {
           setPlan(await requestPlan(recipe, prompt));
-          setStatusMessage("");
+          if (configuration.capabilities.savedExecution)
+            await prepareOutput(
+              image.source === "upload" ? "upload" : "demo",
+              image.asset?.assetId,
+            );
+          else
+            setStatusMessage(
+              "Plan ready. Configure the reviewer-session secret to run the saved demo.",
+            );
         }
       } catch (failure) {
         setStatusMessage("");
@@ -192,7 +344,7 @@ export function PipelineWorkbench({
             <h2>Prepare an image workflow</h2>
           </CardTitle>
           <CardDescription>
-            Select the output, then preview the required handoffs.
+            Choose an output, inspect the result, then approve or reject it.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -210,8 +362,19 @@ export function PipelineWorkbench({
                   Load saved demo
                 </Button>
                 <FieldDescription>
-                  No upload or image generation needed.
+                  Three verified outputs. No upload or generation needed.
                 </FieldDescription>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="min-h-11"
+                  disabled={
+                    isPending || !configuration.capabilities.savedExecution
+                  }
+                  onClick={resumeReview}
+                >
+                  Resume previous review
+                </Button>
               </Field>
               <Field
                 data-disabled={
@@ -235,6 +398,7 @@ export function PipelineWorkbench({
                   onChange={(event) => {
                     setFile(event.target.files?.[0] ?? null);
                     setPlan(null);
+                    clearRun();
                     setError(null);
                     setStatusMessage("");
                   }}
@@ -244,7 +408,7 @@ export function PipelineWorkbench({
                   JPEG, PNG, or WebP · up to{" "}
                   {(configuration.maxUploadBytes / 1000000).toFixed(1)} MB.{" "}
                   {configuration.capabilities.liveIngestion
-                    ? "Uploaded originals stay authenticated."
+                    ? "One standard Cloudinary transformation per prepared output."
                     : "Uploads are disabled; the saved demo still works."}
                 </FieldDescription>
               </Field>
@@ -286,17 +450,18 @@ export function PipelineWorkbench({
                   onChange={(event) => {
                     setPrompt(event.target.value);
                     setPlan(null);
+                    clearRun();
                     setError(null);
                   }}
-                  rows={5}
-                  className="min-h-32 resize-y"
+                  rows={3}
+                  className="min-h-24 resize-y"
                   maxLength={500}
                   required
                   disabled={isPending}
                   aria-describedby="request-help"
                 />
                 <FieldDescription id="request-help">
-                  The selected output controls this preview. Request text cannot
+                  The selected output controls the workflow. Request text cannot
                   add tools or bypass approval.
                 </FieldDescription>
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -308,6 +473,7 @@ export function PipelineWorkbench({
                     onClick={() => {
                       setPrompt(exampleRequests[recipe]);
                       setPlan(null);
+                      clearRun();
                       setError(null);
                     }}
                   >
@@ -325,7 +491,7 @@ export function PipelineWorkbench({
               {error ? (
                 <Alert variant="destructive">
                   <AlertTitle>
-                    {file ? "Image not verified" : "Preview not prepared"}
+                    {file ? "Image not verified" : "Request not completed"}
                   </AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
@@ -349,12 +515,25 @@ export function PipelineWorkbench({
                 {isPending
                   ? "Working…"
                   : file
-                    ? "Upload & verify image"
-                    : "Preview workflow"}
+                    ? "Upload & prepare output"
+                    : configuration.capabilities.savedExecution
+                      ? "Prepare output"
+                      : "Preview workflow"}
                 {!isPending ? (
                   <ArrowRight data-icon="inline-end" aria-hidden="true" />
                 ) : null}
               </Button>
+              {configuration.capabilities.savedExecution ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11 w-full"
+                  disabled={isPending || !prompt.trim()}
+                  onClick={previewOnly}
+                >
+                  Preview workflow
+                </Button>
+              ) : null}
             </FieldGroup>
           </form>
         </CardContent>
@@ -365,8 +544,8 @@ export function PipelineWorkbench({
               aria-hidden="true"
             />
             <p>
-              Saved demos create no new media. Upload verification is not
-              approval; AI analysis stays off.
+              Saved runs create no new media. Metadata inspection is not content
+              moderation. Paid AI analysis stays off.
             </p>
           </div>
           <Badge variant="outline">
@@ -389,25 +568,31 @@ export function PipelineWorkbench({
             id="workflow-title"
             className="text-lg font-semibold tracking-tight"
           >
-            Workflow preview
+            Output & release
           </h2>
           <Badge variant="secondary">
-            {plan
-              ? image.asset
-                ? "Source verified · 4 stages pending"
-                : "5 planned stages"
-              : "No plan yet"}
+            {execution
+              ? execution.run.status === "released"
+                ? "Complete"
+                : "Release gate active"
+              : plan
+                ? image.asset
+                  ? "Source verified · 4 stages pending"
+                  : "5 planned stages"
+                : "No plan yet"}
           </Badge>
         </div>
-        <Alert role="note">
-          <Info aria-hidden="true" />
-          <AlertTitle>Plan it before running it</AlertTitle>
-          <AlertDescription>
-            {image.asset
-              ? "The original has verification evidence. Analysis, transformation, approval, and final release are not implemented yet."
-              : "This is a deterministic workflow preview, not an AI agent run. Load the saved image to inspect its source and planned handoffs."}
-          </AlertDescription>
-        </Alert>
+        {!execution ? (
+          <Alert role="note">
+            <Info aria-hidden="true" />
+            <AlertTitle>Try it without generating an image</AlertTitle>
+            <AlertDescription>
+              Load the saved demo to compare the original with a verified
+              Cloudinary output. Every release needs your approval. This is a
+              deterministic workflow, not an AI agent run.
+            </AlertDescription>
+          </Alert>
+        ) : null}
         <p
           className="text-xs leading-relaxed text-muted-foreground"
           role="status"
@@ -419,7 +604,30 @@ export function PipelineWorkbench({
                 ? "Workflow plan ready. Previewing it performs no media operations."
                 : "")}
         </p>
-        {plan ? (
+        {execution ? (
+          <RunResult
+            key={execution.run.id}
+            result={execution}
+            manifest={manifest}
+            pending={isPending}
+            onReview={(decision, checks) =>
+              runAction("review", decision, checks)
+            }
+            onRelease={() => runAction("release")}
+            onRestart={() => runAction("restart")}
+          />
+        ) : null}
+        {plan && execution ? (
+          <details>
+            <summary className="flex min-h-11 cursor-pointer items-center text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              View the planned handoffs
+            </summary>
+            <PipelinePlanView
+              plan={plan}
+              assetVerified={Boolean(image.asset)}
+            />
+          </details>
+        ) : plan ? (
           <PipelinePlanView plan={plan} assetVerified={Boolean(image.asset)} />
         ) : (
           <Empty className="min-h-96 border border-dashed">
@@ -429,8 +637,8 @@ export function PipelineWorkbench({
               </EmptyMedia>
               <EmptyTitle>Your workflow starts here</EmptyTitle>
               <EmptyDescription>
-                Preview a request to see each stage, its inputs, and the checks
-                that must pass before delivery.
+                Load the saved demo or prepare an output to inspect the result
+                and its release checks.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

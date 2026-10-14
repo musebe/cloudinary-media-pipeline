@@ -1,0 +1,217 @@
+{
+  "version": "release-contracts-v1",
+  "referenceTime": "2026-10-14T12:00:00.000Z",
+  "description": "Thirty explicit release-contract checks using synthetic local evidence. These are deterministic policy checks, not AI accuracy, visual-content safety, or legal rights verification.",
+  "cases": [
+    {
+      "id": "RC-01",
+      "label": "Approved storefront output",
+      "scenario": "valid_storefront",
+      "expectedAllowed": true,
+      "expectedCode": "release_allowed"
+    },
+    {
+      "id": "RC-02",
+      "label": "Approved social output",
+      "scenario": "valid_social",
+      "expectedAllowed": true,
+      "expectedCode": "release_allowed"
+    },
+    {
+      "id": "RC-03",
+      "label": "Approved catalog output",
+      "scenario": "valid_catalog",
+      "expectedAllowed": true,
+      "expectedCode": "release_allowed"
+    },
+    {
+      "id": "RC-04",
+      "label": "Review is still pending",
+      "scenario": "pending_review",
+      "expectedAllowed": false,
+      "expectedCode": "review_required"
+    },
+    {
+      "id": "RC-05",
+      "label": "Reviewer rejected the output",
+      "scenario": "rejected_review",
+      "expectedAllowed": false,
+      "expectedCode": "review_rejected"
+    },
+    {
+      "id": "RC-06",
+      "label": "Approved state has no review evidence",
+      "scenario": "missing_review",
+      "expectedAllowed": false,
+      "expectedCode": "review_required"
+    },
+    {
+      "id": "RC-07",
+      "label": "Composition check was not accepted",
+      "scenario": "composition_unchecked",
+      "expectedAllowed": false,
+      "expectedCode": "review_incomplete"
+    },
+    {
+      "id": "RC-08",
+      "label": "Content check was not accepted",
+      "scenario": "content_unchecked",
+      "expectedAllowed": false,
+      "expectedCode": "review_incomplete"
+    },
+    {
+      "id": "RC-09",
+      "label": "Usage-rights check was not accepted",
+      "scenario": "rights_unchecked",
+      "expectedAllowed": false,
+      "expectedCode": "review_incomplete"
+    },
+    {
+      "id": "RC-10",
+      "label": "Inspection belongs to another source",
+      "scenario": "inspection_asset_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "source_mismatch"
+    },
+    {
+      "id": "RC-11",
+      "label": "Inspection belongs to another source version",
+      "scenario": "inspection_version_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "source_mismatch"
+    },
+    {
+      "id": "RC-12",
+      "label": "Derivative belongs to another source",
+      "scenario": "derivative_asset_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "source_mismatch"
+    },
+    {
+      "id": "RC-13",
+      "label": "Derivative belongs to another source version",
+      "scenario": "derivative_version_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "source_mismatch"
+    },
+    {
+      "id": "RC-14",
+      "label": "Derivative belongs to another public ID",
+      "scenario": "derivative_public_id_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "source_mismatch"
+    },
+    {
+      "id": "RC-15",
+      "label": "Inspection width differs from the verified source",
+      "scenario": "inspection_width_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "inspection_mismatch"
+    },
+    {
+      "id": "RC-16",
+      "label": "Inspection byte size differs from the verified source",
+      "scenario": "inspection_bytes_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "inspection_mismatch"
+    },
+    {
+      "id": "RC-17",
+      "label": "Derivative uses a different output recipe",
+      "scenario": "derivative_recipe_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "derivative_mismatch"
+    },
+    {
+      "id": "RC-18",
+      "label": "Derivative uses an unapproved transformation",
+      "scenario": "derivative_transform_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "derivative_mismatch"
+    },
+    {
+      "id": "RC-19",
+      "label": "Derivative width is not the requested output width",
+      "scenario": "derivative_width_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "derivative_mismatch"
+    },
+    {
+      "id": "RC-20",
+      "label": "Derivative height is not the requested output height",
+      "scenario": "derivative_height_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "derivative_mismatch"
+    },
+    {
+      "id": "RC-21",
+      "label": "Approval belongs to another execution run",
+      "scenario": "approval_run_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "review_mismatch"
+    },
+    {
+      "id": "RC-22",
+      "label": "Approval belongs to another source asset",
+      "scenario": "approval_asset_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "review_mismatch"
+    },
+    {
+      "id": "RC-23",
+      "label": "Approval belongs to another source version",
+      "scenario": "approval_version_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "review_mismatch"
+    },
+    {
+      "id": "RC-24",
+      "label": "Approval belongs to another output recipe",
+      "scenario": "approval_recipe_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "review_mismatch"
+    },
+    {
+      "id": "RC-25",
+      "label": "Approval names a different derivative checksum",
+      "scenario": "approval_hash_mismatch",
+      "expectedAllowed": false,
+      "expectedCode": "review_mismatch"
+    },
+    {
+      "id": "RC-26",
+      "label": "Execution run has reached its expiration time",
+      "scenario": "expired_run",
+      "expectedAllowed": false,
+      "expectedCode": "run_expired"
+    },
+    {
+      "id": "RC-27",
+      "label": "Execution run is dated in the future",
+      "scenario": "future_run",
+      "expectedAllowed": false,
+      "expectedCode": "run_not_started"
+    },
+    {
+      "id": "RC-28",
+      "label": "Approval is dated in the future",
+      "scenario": "future_approval",
+      "expectedAllowed": false,
+      "expectedCode": "review_time_invalid"
+    },
+    {
+      "id": "RC-29",
+      "label": "Derivative evidence is missing",
+      "scenario": "missing_derivative",
+      "expectedAllowed": false,
+      "expectedCode": "invalid_run"
+    },
+    {
+      "id": "RC-30",
+      "label": "Unknown execution field attempts to add a callback",
+      "scenario": "unknown_field",
+      "expectedAllowed": false,
+      "expectedCode": "invalid_run"
+    }
+  ]
+}

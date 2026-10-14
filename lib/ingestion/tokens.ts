@@ -1,12 +1,17 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export type TokenKind = "session" | "intent" | "receipt";
+export type TokenKind = "session" | "intent" | "receipt" | "run";
 
 export const MAX_TOKEN_LENGTH = 4_096;
 export const MAX_TOKEN_BODY_BYTES = 3_000;
 const TOKEN_DOMAIN = "media-pipeline.token.v1";
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/;
-const TOKEN_KINDS: readonly TokenKind[] = ["session", "intent", "receipt"];
+const TOKEN_KINDS: readonly TokenKind[] = [
+  "session",
+  "intent",
+  "receipt",
+  "run",
+];
 
 export class TokenValidationError extends Error {
   constructor() {

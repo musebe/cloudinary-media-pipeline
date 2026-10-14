@@ -66,8 +66,9 @@ export type PipelineNodeId = z.infer<typeof pipelineNodeIdSchema>;
 export const pipelineToolSchema = z.enum([
   "cloudinary.upload.sign",
   "cloudinary.admin.read",
-  "cloudinary.analyze.visual",
-  "cloudinary.transform.url",
+  "application.metadata.inspect",
+  "cloudinary.transform.eager",
+  "application.delivery.verify",
   "application.policy.evaluate",
   "cloudinary.delivery.sign",
 ]);
