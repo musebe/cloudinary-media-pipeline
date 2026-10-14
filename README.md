@@ -4,6 +4,8 @@ Prepare a storefront, social, or catalog image through a traceable workflow. Com
 
 The saved demo includes real Cloudinary outputs in the repository. The storefront output appears immediately on first load, with no run started or approval granted. Visitors can run the complete review and release flow without uploading or generating new images.
 
+[Try the live demo](https://cloudinary-media-pipeline.vercel.app/) · [Run the release checks](https://cloudinary-media-pipeline.vercel.app/benchmark) · [GitHub repository](https://github.com/musebe/cloudinary-media-pipeline)
+
 ## Run locally
 
 Use Node.js 24 and pnpm 10.
@@ -55,7 +57,7 @@ The source is identified by immutable Cloudinary asset ID and version. Each outp
 
 Metadata inspection checks technical facts, not image meaning. Composition, appropriate content, and usage rights require human attestations. The release policy blocks missing approval, rejected or expired runs, and mismatched source, recipe, or output evidence.
 
-**Release checks** opens the [30-case benchmark](http://localhost:3002/benchmark). It tests three allowed recipes and 27 expected blocks, with downloadable results. The verified run passed 30/30 cases with zero false releases or false blocks. This measures deterministic contract behavior, not AI accuracy or content safety. See [the evaluation protocol](docs/benchmark.md).
+**Release checks** opens the [30-case benchmark](https://cloudinary-media-pipeline.vercel.app/benchmark). It tests three allowed recipes and 27 expected blocks, with downloadable results. The verified run passed 30/30 cases with zero false releases or false blocks. This measures deterministic contract behavior, not AI accuracy or content safety. See [the evaluation protocol](docs/benchmark.md).
 
 ## Use your own image locally
 
