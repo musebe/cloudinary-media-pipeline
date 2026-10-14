@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   turbopack: { root: process.cwd() },
+  outputFileTracingIncludes: {
+    "/api/pipelines/*": ["public/demo/*.webp"],
+  },
   // Keep browser tests separate from an editor's running development server.
   distDir:
     process.env.MEDIA_PIPELINE_TEST_BUILD === "true" ? ".next-test" : ".next",

@@ -38,3 +38,11 @@ Production uploads are disabled regardless of the environment flag. Authenticati
 No AI analysis, generation, transformed output, approval, or final release has run. The plan UI marks ingestion evidence separately from the four pending stages. Full execution still returns `501`.
 
 Validation: formatting, ESLint, TypeScript, 195 unit checks, 14 browser/API checks, and the production build passed. A production-server smoke test returned HTTP 200 for health and the saved-demo loader, reused the version-pinned snapshot, and confirmed uploads stay disabled. Desktop and mobile browser checks intercepted Cloudinary delivery with the identical bundled file, verified the exact authorized `CldImage` source without a transformation `srcset`, and found no runtime errors or horizontal overflow. This isolated browser check added no provider operations; real original delivery was checked in the authorized live test above.
+
+## October 14, 2026 — verified standard outputs
+
+User-authorized processing created exactly three standard transformations from the retained original: 1200 × 1200 padded storefront, 1200 × 630 center-cropped social preview, and 1600 × 1600 padded catalog. All outputs use WebP at quality 80. Two Admin API reads verified source and derived identities; three delivery reads verified content type, decoded pixels, dimensions, bytes, and SHA-256. This used five of the six authorized verification reads. No AI analysis or generation ran.
+
+Committed the actual downloaded derivatives and their historical evidence in `public/demo/` and `fixtures/demo-outputs.json`. The demo rechecks their local bytes, so running it after deployment needs no new transformation or provider analysis. The three files are 44,328, 38,150, and 67,144 bytes respectively.
+
+The new pure release contracts require matching source/version/recipe, inspection facts, a verified derivative, an unexpired run, and a bound human approval. Metadata inspection records technical facts only; content and rights remain explicit reviewer attestations. Focused execution and transformation tests use local synthetic buffers and mocked providers, not additional live calls.

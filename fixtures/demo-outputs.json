@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "media-pipeline.outputs.v1",
+  "cloudName": "demo-article-projects",
+  "operations": {
+    "standardTransformations": 3,
+    "adminReads": 2,
+    "deliveryReads": 3,
+    "aiCalls": 0
+  },
+  "outputs": [
+    {
+      "imagePath": "/demo/storefront.webp",
+      "derivative": {
+        "source": {
+          "assetId": "7b90f7bbe195b9431f4434172cc15bac",
+          "publicId": "media-pipeline/originals/371bb616-e7f1-49fa-ae89-12c7c49ab058",
+          "version": 1791984727
+        },
+        "recipe": "storefront",
+        "transformation": "b_white,c_pad,h_1200,w_1200/q_80",
+        "width": 1200,
+        "height": 1200,
+        "derivedAssetId": "9f1334b0bc94f1aad31948544f5a131c",
+        "format": "webp",
+        "bytes": 44328,
+        "sha256": "59b8b21e0baa94309bb57151dba716ec07bd0177b3cb7204c7d1ee97485f7aeb",
+        "verifiedAt": "2026-10-14T14:10:10.518Z"
+      }
+    },
+    {
+      "imagePath": "/demo/social.webp",
+      "derivative": {
+        "source": {
+          "assetId": "7b90f7bbe195b9431f4434172cc15bac",
+          "publicId": "media-pipeline/originals/371bb616-e7f1-49fa-ae89-12c7c49ab058",
+          "version": 1791984727
+        },
+        "recipe": "social",
+        "transformation": "c_fill,g_center,h_630,w_1200/q_80",
+        "width": 1200,
+        "height": 630,
+        "derivedAssetId": "eb7e0d1da04130e32c35aad0ba93a07a",
+        "format": "webp",
+        "bytes": 38150,
+        "sha256": "54761ecdaf563e0cc75dbd7817f8e6eef557ae586791893da5bbef1dc8e6842a",
+        "verifiedAt": "2026-10-14T14:10:11.052Z"
+      }
+    },
+    {
+      "imagePath": "/demo/catalog.webp",
+      "derivative": {
+        "source": {
+          "assetId": "7b90f7bbe195b9431f4434172cc15bac",
+          "publicId": "media-pipeline/originals/371bb616-e7f1-49fa-ae89-12c7c49ab058",
+          "version": 1791984727
+        },
+        "recipe": "catalog",
+        "transformation": "b_white,c_pad,h_1600,w_1600/q_80",
+        "width": 1600,
+        "height": 1600,
+        "derivedAssetId": "06eb5dd396d032476f7351e188ff50d8",
+        "format": "webp",
+        "bytes": 67144,
+        "sha256": "79c3eba5df92ac12ef1a8c9f64d1d99f04c78ded2345b177b39e8b069e8ebb09",
+        "verifiedAt": "2026-10-14T14:10:11.806Z"
+      }
+    }
+  ]
+}
