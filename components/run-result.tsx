@@ -261,10 +261,14 @@ export function RunResult({
             Verify & release
           </Button>
         ) : null}
-        {run.status === "released" && manifest ? (
+        {run.status === "released" ? (
           <>
             <Button asChild className="min-h-11">
-              <a href={manifest.deliveryUrl}>
+              <a
+                href={
+                  manifest?.deliveryUrl ?? `${result.outputImageUrl}&download=1`
+                }
+              >
                 <Download data-icon="inline-start" />
                 Download WebP
               </a>

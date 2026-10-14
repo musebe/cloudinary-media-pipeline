@@ -56,3 +56,9 @@ The interface displays source and output, five stage outcomes, three explicit hu
 Added a reproducible 30-case release-contract benchmark: three allowed recipes and 27 expected blocks. Measured 30/30 expected decisions and codes, zero false releases, and zero false blocks. This is deterministic contract coverage, not AI accuracy, content safety, legal verification, or the originally proposed model-backed comparison.
 
 Validation passed: formatting, lint, TypeScript, 464 unit tests, 24 browser/API checks, and the production build. Production-server desktop and mobile runs loaded, reviewed, released, and downloaded the 44,328-byte storefront file with no external requests, browser errors, or horizontal overflow. All three saved output hashes matched in API tests; cross-session, stale-run, cross-origin, incomplete-review, and premature-download checks blocked as expected. No additional live provider operations were used. Compiled client assets contained neither local server secret. Next.js file tracing includes the saved WebP files for serverless verification.
+
+## October 14, 2026 — output visible on first load
+
+The saved storefront WebP now renders in **Output & release** immediately. Selecting another recipe switches the recorded preview without creating a run, approval, transformation, or external request. **Review this output** starts the session-bound review. Already-released runs retain their download links when the same demo is loaded again.
+
+The browser/API suite now passes 26 checks, including first-load visibility, eager loading, absence of automatic mutations, unchanged release locks, and recipe-specific saved previews. The bundled flow also works with no Cloudinary credentials, using only the configured reviewer-session secret.

@@ -14,13 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
   Field,
   FieldDescription,
   FieldGroup,
@@ -51,6 +44,7 @@ import {
   type DeliveryManifest,
 } from "@/lib/execution/requests";
 import { RunResult, type ReviewChecks } from "@/components/run-result";
+import { SavedOutputPreview } from "@/components/saved-output-preview";
 
 const exampleRequests: Record<PipelineRecipe, string> = {
   storefront:
@@ -144,9 +138,13 @@ export function PipelineWorkbench({
         source: "cloudinary-demo",
       });
     setStatusMessage(
-      source === "demo"
-        ? "Saved output ready for review. No new images or transformations created."
-        : "Cloudinary output verified. Review it before release.",
+      result.run.status === "released"
+        ? "Released output restored. Your download is still available."
+        : result.run.status === "rejected"
+          ? "This output was rejected. Start a new review to reconsider it."
+          : source === "demo"
+            ? "Saved output ready for review. No new images or transformations created."
+            : "Cloudinary output verified. Review it before release.",
     );
   }
 
@@ -579,10 +577,10 @@ export function PipelineWorkbench({
                 ? image.asset
                   ? "Source verified · 4 stages pending"
                   : "5 planned stages"
-                : "No plan yet"}
+                : "Saved output preview"}
           </Badge>
         </div>
-        {!execution ? (
+        {!execution && plan ? (
           <Alert role="note">
             <Info aria-hidden="true" />
             <AlertTitle>Try it without generating an image</AlertTitle>
@@ -630,18 +628,11 @@ export function PipelineWorkbench({
         ) : plan ? (
           <PipelinePlanView plan={plan} assetVerified={Boolean(image.asset)} />
         ) : (
-          <Empty className="min-h-96 border border-dashed">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GitBranch aria-hidden="true" />
-              </EmptyMedia>
-              <EmptyTitle>Your workflow starts here</EmptyTitle>
-              <EmptyDescription>
-                Load the saved demo or prepare an output to inspect the result
-                and its release checks.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <SavedOutputPreview
+            recipe={recipe}
+            pending={isPending || !configuration.capabilities.savedExecution}
+            onReview={loadSavedDemo}
+          />
         )}
       </section>
     </div>

@@ -22,7 +22,9 @@ test("previews five typed stages with a bundled image and no external services",
   await expect(
     page.getByRole("heading", { name: "One request. Every handoff visible." }),
   ).toBeVisible();
-  await expect(page.getByText("No plan yet", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Saved output preview", { exact: true }),
+  ).toBeVisible();
 
   const previewButton = page.getByRole("button", { name: "Preview workflow" });
   await previewButton.focus();
@@ -91,13 +93,15 @@ test("uses the social recipe and clears stale plans after request or output edit
     .getByLabel("Your request")
     .fill("Prepare this image for approval.");
   await expect(page.getByTestId("pipeline-plan")).toHaveCount(0);
-  await expect(page.getByText("No plan yet", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Saved output preview", { exact: true }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Preview workflow" }).click();
   await expect(page.getByTestId("pipeline-plan")).toBeVisible();
   await page.getByRole("radio", { name: "Catalog image", exact: true }).click();
   await expect(page.getByTestId("pipeline-plan")).toHaveCount(0);
-  await expect(page.getByText("1600 × 1600 · WebP")).toBeVisible();
+  await expect(page.getByText("1600 × 1600 · WebP").first()).toBeVisible();
 
   await page.getByLabel("Your request").fill("   ");
   await expect(

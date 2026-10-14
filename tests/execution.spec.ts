@@ -2,6 +2,56 @@ import { expect, test } from "@playwright/test";
 import { createHash } from "node:crypto";
 import outputs from "../fixtures/demo-outputs.json";
 
+test("shows the first saved output on initial load without starting a run", async ({
+  page,
+}, testInfo) => {
+  const mutations: string[] = [];
+  const external: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST") mutations.push(request.url());
+  });
+  await page.route("**/*", async (route) => {
+    if (new URL(route.request().url()).origin !== "http://127.0.0.1:3003") {
+      external.push(route.request().url());
+      await route.abort();
+    } else await route.continue();
+  });
+  await page.goto("/");
+  const preview = page.getByTestId("saved-output-preview");
+  const image = preview.locator("img");
+  await expect(preview).toBeVisible();
+  await expect(image).toHaveAttribute("src", /\/demo\/storefront\.webp$/);
+  await expect(image).toHaveAttribute("loading", "eager");
+  await expect(image).toHaveJSProperty("naturalWidth", 1200);
+  await expect(preview).toContainText("Saved preview · not approved");
+  await expect(page.getByRole("link", { name: "Download WebP" })).toHaveCount(
+    0,
+  );
+  await expect(page.getByTestId("run-result")).toHaveCount(0);
+  await expect(
+    page.getByText("Your workflow starts here", { exact: true }),
+  ).toHaveCount(0);
+  expect(mutations).toEqual([]);
+  expect(external).toEqual([]);
+  await page.screenshot({
+    path: `.test-artifacts/initial-output-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  expect((await page.request.get("/api/pipelines/current")).status()).toBe(401);
+  await page
+    .getByRole("radio", { name: "Social preview", exact: true })
+    .click();
+  await expect(preview.locator("img")).toHaveAttribute(
+    "src",
+    /\/demo\/social\.webp$/,
+  );
+  await expect(preview.locator("img")).toHaveJSProperty("naturalHeight", 630);
+  await preview
+    .getByRole("button", { name: "Review this output", exact: true })
+    .click();
+  await expect(page.getByTestId("run-result")).toBeVisible();
+});
+
 test("loads, reviews, releases, and restores a saved output with no external requests", async ({
   page,
 }, testInfo) => {
@@ -65,6 +115,12 @@ test("loads, reviews, releases, and restores a saved output with no external req
       .update(await download.body())
       .digest("hex"),
   ).toBe(outputs.outputs[0].derivative.sha256);
+  await page
+    .getByRole("button", { name: "Load saved demo", exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Download WebP", exact: true }),
+  ).toBeVisible();
   await page.screenshot({
     path: `.test-artifacts/completed-${testInfo.project.name}.png`,
     fullPage: true,
