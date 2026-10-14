@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-test/
 /out/
 
 # production
@@ -32,6 +33,16 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# Local assistant configuration and test artifacts
+.agents/
+.cursor/
+.claude/
+.mcp.json
+test-results/
+playwright-report/
+.test-artifacts/
 
 # vercel
 .vercel

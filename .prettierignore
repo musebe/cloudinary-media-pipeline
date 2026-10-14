@@ -1,0 +1,10 @@
+node_modules
+.next
+.next-test
+.vercel
+.agents
+pnpm-lock.yaml
+.env*
+test-results
+playwright-report
+.test-artifacts
