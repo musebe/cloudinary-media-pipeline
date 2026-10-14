@@ -1,8 +1,8 @@
 # Cloudinary media pipeline
 
-Preview the work needed to prepare a product image for a storefront, social preview, or catalog. Choose a fixed output recipe, enter a request, and inspect each stage's dependencies, allowed tools, and output contract.
+Prepare a storefront, social, or catalog image through a traceable workflow. Compare the original with its output, inspect the evidence, approve or reject the result, and download a verified WebP.
 
-Load a reusable product-image demo without uploading or generating anything. With local uploads enabled, you can also send an image to Cloudinary and verify the stored original. Analysis, transformations, approval, and final release are not implemented yet.
+The saved demo includes real Cloudinary outputs in the repository. The storefront output appears immediately on first load, with no run started or approval granted. Visitors can run the complete review and release flow without uploading or generating new images.
 
 ## Run locally
 
@@ -13,75 +13,67 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3002](http://localhost:3002) and select **Load saved demo**. Choose an output and inspect the handoffs. **Preview workflow** changes the plan without processing the image.
+Open [http://localhost:3002](http://localhost:3002). Keep your existing `.env.local`. For a fresh setup, copy `.env.example` and set a random `DEMO_SESSION_SECRET` of at least 32 characters. That secret enables server-side review sessions. The bundled demo does not require Cloudinary API credentials.
 
-The sample is committed in `public/demo/product-shoe.jpg`. Its Cloudinary asset reference, version, verification timestamp, and source checksum are in `fixtures/demo-image.json`. Demo loading reuses that saved evidence; it makes no upload, generation, analysis, or Admin API request. Without matching credentials, the bundled image and plan still work.
+## Try the demo
 
-To try your own image locally, configure `.env.local`, set `ENABLE_LIVE_PIPELINE=true`, and restart `pnpm dev`. Choose a JPEG, PNG, or WebP within the displayed limit, then select **Upload & verify image**. The server checks the stored asset ID, version, type, format, bytes, dimensions, tags, and session context. This is ingestion evidence, not approval.
+1. Select **Load saved demo**.
+2. Choose **Storefront**, **Social preview**, or **Catalog**, then select **Prepare output**.
+3. Compare the source with the prepared image.
+4. Accept the three review checks and select **Approve output**, or select **Reject output**.
+5. Select **Verify & release**, then **Download WebP** or **Download evidence**.
 
-| Output recipe    | Planned size | Fit  |
-| ---------------- | ------------ | ---- |
-| Storefront image | 1200 × 1200  | Pad  |
-| Social preview   | 1200 × 630   | Fill |
-| Catalog image    | 1600 × 1600  | Pad  |
+**Preview workflow** shows the fixed handoffs without preparing an output. **Resume previous review** restores the current browser session after refresh; runs expire after twenty minutes. **Start new review** clears approval and reuses the verified output.
 
-The request is display-only text. The selected recipe determines the output settings; text in the request cannot add tools, execute code, choose a remote URL, or bypass a dependency.
+| Output         | Dimensions  | Fit                   | Saved file size |
+| -------------- | ----------- | --------------------- | --------------: |
+| Storefront     | 1200 × 1200 | Pad, white background |    44,328 bytes |
+| Social preview | 1200 × 630  | Center crop           |    38,150 bytes |
+| Catalog        | 1600 × 1600 | Pad, white background |    67,144 bytes |
 
-## Follow the handoffs
+All outputs use WebP at quality 80. The request is an untrusted note: it cannot add tools, choose a URL, execute code, change transformation parameters, or bypass review. The selected recipe controls processing.
 
-```text
-Upload and verify
-  → Collect visual evidence
-      → Prepare the fixed format ─┐
-      → Check release requirements ─┤
-                                   → Release after both gates
-```
+## Follow the evidence
 
-Each stage declares the artifacts it accepts and produces. The planner validates the graph for cycles, missing stages, altered capabilities, and unsafe handoffs. “Specialist” describes a stage's responsibility, not an AI agent or model call.
+The source is identified by immutable Cloudinary asset ID and version. Each output records its exact transformation, derived asset ID, dimensions, bytes, verification time, and SHA-256 checksum. Saved evidence is historical; the application checks the bundled output bytes again when preparing, releasing, and downloading.
 
-## Local API
+Metadata inspection checks technical facts, not image meaning. Composition, appropriate content, and usage rights require human attestations. The release policy blocks missing approval, rejected or expired runs, and mismatched source, recipe, or output evidence.
 
-| Endpoint                               | Behavior                                                                                        |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `GET /api/health`                      | Reports preview capabilities and configuration presence without credential values               |
-| `POST /api/pipelines/preview`          | Returns a validated plan for a supported recipe and a 1–500 character request                   |
-| `POST /api/pipelines/execute`          | Returns `501`; live execution is not implemented                                                |
-| `GET /api/demo`                        | Loads the committed demo and planned recipe without new provider operations                     |
-| `POST /api/ingestions/sign`            | Issues constrained parameters and a ten-minute session-bound upload ticket in local development |
-| `POST /api/ingestions/finalize`        | Reads the stored asset and verifies the signed upload intent                                    |
-| `GET /api/ingestions/image?asset=<id>` | Authorizes reviewer access using HTTP-only session and image cookies                            |
+**Release checks** opens the [30-case benchmark](http://localhost:3002/benchmark). It tests three allowed recipes and 27 expected blocks, with downloadable results. The verified run passed 30/30 cases with zero false releases or false blocks. This measures deterministic contract behavior, not AI accuracy or content safety. See [the evaluation protocol](docs/benchmark.md).
 
-See [local setup and API examples](docs/setup.md) for commands, environment variables, and troubleshooting. Cloudinary configuration is optional for the preview. A configured credential set is not an authenticated connection.
+## Use your own image locally
 
-## Check changes
+Configure the Cloudinary variables in `.env.local`, set `ENABLE_LIVE_PIPELINE=true`, and restart the server. Choose a JPEG, PNG, or WebP under the displayed limit, then select **Upload & prepare output**.
+
+The browser uploads directly to an authenticated Cloudinary asset in `media-pipeline/originals`. The server verifies ownership and source facts, generates one standard eager transformation, reads the derivative back, and checks its delivered pixels and checksum. Original display uses reviewer access; final download uses a session-checked proxy.
+
+Each new uploaded-output preparation consumes a standard transformation and verification reads. Repeating an unchanged current run reuses its evidence; it is not a global cache. No AI generation, paid analysis, or model provider is used. Production uploads remain disabled even if the flag is set.
+
+## Checks and source
 
 ```bash
 pnpm check
 pnpm test:e2e
 ```
 
-`check` runs formatting, linting, TypeScript validation, unit tests, and a production build. The browser suite checks the local interface and preview flow. If Chromium is not installed, run `pnpm exec playwright install chromium` first.
+Validation currently passes 464 unit tests, 26 browser/API checks, lint, TypeScript, formatting, and the production build. Browser tests cover desktop, mobile, readable contrast, release gating, restoration, and errors. If needed, install Chromium with `pnpm exec playwright install chromium`.
 
-## Project layout
+| Location                           | Responsibility                                                                                                          |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `lib/pipeline/`                    | Fixed recipes and validated graph                                                                                       |
+| `lib/ingestion/`                   | Source contracts, upload verification, authenticated tokens                                                             |
+| `lib/execution/`                   | Run contracts, human review, fail-closed release policy                                                                 |
+| `lib/server/`                      | Cloudinary calls, session receipts, derivative verification, output proxy                                               |
+| `public/demo/` and `fixtures/`     | Reusable source, real outputs, and recorded Cloudinary evidence                                                         |
+| `benchmarks/` and `lib/benchmark/` | Labeled cases and deterministic evaluation                                                                              |
+| `docs/`                            | [Setup](docs/setup.md), [architecture](docs/architecture.md), [build evidence](docs/build-log.md), and article planning |
 
-| Location                       | Responsibility                                                  |
-| ------------------------------ | --------------------------------------------------------------- |
-| `app/`                         | Demo page and API routes                                        |
-| `components/`                  | Responsive interface and shadcn components                      |
-| `lib/pipeline/`                | Recipes, runtime schemas, typed artifacts, and graph validation |
-| `lib/server/`                  | Server-only signing, review sessions, and Cloudinary readback   |
-| `lib/ingestion/`               | Image evidence contracts, verification, and signed-token checks |
-| `public/demo/` and `fixtures/` | Reusable input and its saved verification record                |
-| `docs/`                        | Setup, build brief, and checkpoint notes                        |
+Built with Next.js 16.4, React 19.3, TypeScript, shadcn/ui, [Next Cloudinary](https://next.cloudinary.dev/), the Cloudinary Node SDK, Zod, Sharp, Vitest, and Playwright.
 
-Built with Next.js 16.4, React 19.3, TypeScript, Tailwind CSS 4, shadcn/ui, Zod, Vitest, and Playwright.
+## Boundaries
 
-## Live workflow status
+The committed example files are public. The gate controls this application's release API, not universal access to those sample bytes. Reviewer Cloudinary URLs are shareable and do not expire automatically. Released downloads stay behind the application session proxy.
 
-Authenticated upload and readback were verified with one 379 KB sample and two Admin API reads. The sample is retained for reuse after deployment. Public uploads are intentionally disabled in production; visitors can load the saved example without creating new images.
+Cookies are authenticated, not encrypted. They store the current run, not a durable audit history; replayed older cookies cannot be reliably revoked without server state. Human checks do not establish legal rights or guarantee safe content. Before public uploads, add real identity, durable state, rate limits, provider-enforced upload limits, retention, and cost controls.
 
-Reviewer URLs can be shared and do not expire automatically. The cookie identifies a review session, not a production user. Public uploads need identity, rate limits, provider-enforced upload limits, retention rules, and a budget. The application checks actual byte limits after upload, so that check alone cannot prevent storage-cost abuse.
-
-Analysis, transformations, human approval, full execution, and benchmark results remain later checkpoints. No model-backed agent run is claimed. [Next Cloudinary](https://next.cloudinary.dev/) renders the authenticated original with automatic transformations disabled to preserve its authorized path.
-
-Future live analysis must be explicitly enabled within an agreed budget. The [Cloudinary Analyze API](https://cloudinary.com/documentation/analyze_api_guide) is Public Beta; analysis models require their relevant add-on subscriptions and consume quota. Confirm access and current limits before running a live checkpoint.
+The originally proposed model-backed specialist comparison is a separate extension requiring an agreed provider and budget. This application implements deterministic workflow stages and does not claim AI-agent behavior.

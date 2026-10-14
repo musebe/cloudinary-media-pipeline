@@ -4,42 +4,48 @@
 
 **Deadline:** Sunday, October 18, 2026 · **Category:** Agentic Media Infrastructure
 
-**Opportunity:** 9.5/10, original planning score: traceable media handoffs provide a specific implementation angle; search volume and overlap still need validation.
+**Opportunity:** 9.5/10, original planning score. Verifiable handoffs offer a specific developer angle; archive overlap still needs checking.
 
-**Buildability:** 8.5/10, original planning score: Cloudinary supplies asset and delivery primitives, but model-backed orchestration, analysis access, and budget remain dependencies.
+**Buildability:** 8.5/10, original planning score. The deterministic demo is complete; a genuine AI-specialist comparison remains budget-dependent.
 
-**Objective:** Make media preparation auditable through typed, capability-bounded stages and verified Cloudinary artifacts.
+**Objective:** Verify image-processing handoffs and require approval before application release.
 
-**Stack:** Next.js, JavaScript/TypeScript, shadcn/ui, `next-cloudinary`, Cloudinary Node SDK, runtime schemas, and an optional model provider for later specialist planning.
+**Stack:** Next.js 16.4, TypeScript, shadcn/ui, Next Cloudinary, Cloudinary Node SDK, Zod, Sharp, Vitest, and Playwright.
 
-**SEO focus:** Cloudinary media pipeline, Next.js image workflow, typed AI agent handoffs, verifiable media processing.
+**SEO focus:** Cloudinary media pipeline, Next.js image workflow, image approval workflow, verified media delivery.
 
-**Question:** How can a Next.js application verify every handoff before releasing a Cloudinary image?
+**Question:** How can a Next.js application verify each handoff before releasing a Cloudinary image?
 
-**Proof / GEO asset:** Proposed 30-task comparison of monolithic planning, a fixed workflow, and typed specialists. It is not implemented or measured yet.
+**Proof / GEO asset:** Three real Cloudinary outputs with provenance and checksums, plus a thirty-case deterministic release-contract benchmark. The originally proposed model-backed comparison is not implemented.
 
-**Outline:** Problem and direct answer; architecture and trust boundaries; typed contracts; secure ingestion; evidence collection; bounded transformations; human approval; verified release; comparison protocol; results and limitations.
+**Outline:** Direct answer; trust boundaries; typed contracts; authenticated ingestion; metadata inspection; fixed transformations; human review; verified release; contract evaluation; limitations.
 
 ## Research and implementation notes
 
-The [Raven paper](https://arxiv.org/abs/2609.33439) studies composable model harnesses. Our current preview is a fixed dependency graph, not Raven or an AI multi-agent system. [Next Cloudinary](https://next.cloudinary.dev/) supplies the Next.js media integration. Confirm [Analyze API](https://cloudinary.com/documentation/analyze_api_guide) subscriptions and [access-control](https://cloudinary.com/documentation/control_access_to_media) requirements before live operations.
+The [Raven paper](https://arxiv.org/abs/2609.33439) inspires explicit responsibilities. This app is not Raven or a multi-agent implementation. Primary implementation references: [eager transformations](https://cloudinary.com/documentation/eager_and_incoming_transformations), [access control](https://cloudinary.com/documentation/control_access_to_media), and [Next Cloudinary](https://next.cloudinary.dev/).
 
-Current files: `lib/pipeline/` contains graph contracts; `lib/ingestion/` contains image and token checks; `app/api/ingestions/` implements local signed upload/readback. `fixtures/demo-image.json` and `public/demo/product-shoe.jpg` preserve the source. One authorized upload and two Admin reads passed; no AI analysis or generation ran. Repository, deployment, final pipeline evidence, and article remain pending.
+**Verified evidence:** One retained upload; three standard WebP outputs; actual decoded pixels and byte checks; 30/30 contract cases, zero false releases/blocks; 464 unit and 26 browser/API tests; production-build smoke checks. See [build log](./build-log.md) and [benchmark protocol](./benchmark.md).
 
-| Primary keyword           | Secondary keywords                                               | Long-tail keywords                                                                  | Meta title                                              | Meta description                                                                                                                    |
-| ------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Cloudinary media pipeline | Next.js image workflow; typed agent handoffs; media verification | verify image workflow handoffs in Next.js; approve Cloudinary images before release | A Verifiable Media Pipeline With Next.js and Cloudinary | Follow typed image-processing stages in Next.js, verify Cloudinary evidence, and require approval before releasing the final asset. |
+**Main files:** `lib/pipeline/`, `lib/execution/`, `lib/server/execution.ts`, `lib/server/derivatives.ts`, `fixtures/`, and `benchmarks/`.
 
-## Search and review notes
+**Limits:** No paid analysis or generation. Metadata inspection is not semantic analysis. Human checks are attestations. Demo files are public; the gate protects the application's release API. Signed original URLs are shareable. Session cookies are not durable audit storage or reliable revocation.
 
-**Reader and intent:** JavaScript developers who need a traceable media workflow, rather than an opaque prompt-to-output demo. **Query family:** the keywords above. **Differentiation hypothesis:** verified artifacts and release gates, not another generic upload tutorial; a current Cloudinary Blog overlap audit is still required. **Slug:** `verifiable-media-pipeline-nextjs-cloudinary`.
+| Primary keyword           | Secondary keywords                                        | Long-tail keywords                                                                         | Meta title                                              | Meta description                                                                                                           |
+| ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Cloudinary media pipeline | Next.js image workflow; image approval; verified delivery | verify Cloudinary image outputs before release; require approval for image transformations | A Verifiable Media Pipeline With Next.js and Cloudinary | Prepare Cloudinary images through typed Next.js stages, verify output evidence, and require human approval before release. |
 
-**Cloudinary entities:** signed uploads, immutable asset IDs, Admin API readback, analysis evidence, transformations, authenticated media, and delivery access control. **Constraints:** analysis add-ons, quota, authenticated derivatives, and model costs must be verified; signed URLs do not expire automatically. Region requirements are not assessed yet.
+## Editorial and design preparation
 
-**Original evidence:** validated plan, authenticated ingestion, byte-identical original delivery, and a persisted reusable demo; see [build log](./build-log.md). **Internal links:** select current Cloudinary Blog posts on signed upload and access control during the overlap audit. **Direct-answer topics:** handoff validation, trustworthy evidence, failure handling, and approval before delivery.
+**Reader intent:** JavaScript developers implementing traceable media preparation with a verifiable release boundary. **Query family:** the terms above. **Differentiation hypothesis:** provenance, real output verification, and fail-closed release rather than another upload tutorial. Archive/keyword overlap remains to be researched.
 
-**Media and accessibility:** capture one readable workflow diagram and real input/output evidence only after live validation; redact secrets and use descriptive alt text. **Structured data:** assess `TechArticle` for the eventual tutorial; emit only visible, verified content.
+**Slug:** `verifiable-media-pipeline-nextjs-cloudinary`. **Entities:** authenticated upload, Admin API, eager derivatives, immutable IDs, checksums, human approval, and session-proxy delivery. No beta API or paid add-on is used.
 
-**Publication gate:** not scored; blocked on live implementation, measured evaluation, and the finished article. Do not send a ready-for-review message yet.
+**Direct-answer topics:** trustworthy handoffs, metadata versus visual analysis, approval before delivery, failed checks, and saved demo reuse. **Internal links:** select current noncompeting Cloudinary Blog upload and access-control articles during research.
 
-**Design direction:** show one source image passing through inspection, formatting, and approval to a verified result. Use clear stage labels and one visible blocked handoff. The final editorial/design message will stay short, with verified demo and repository links.
+**Media:** one source/output comparison and a compact gate diagram, with readable labels and descriptive alt text. **Structured data:** assess visible `TechArticle` content at article time; no unsupported accuracy claims.
+
+**Publication gate:** not scored. Article draft, current overlap audit, title-to-scope review, public repository/demo links, and final screenshots remain pending.
+
+**Reviewer message:** Add a short ready-for-review note to Melinda only after the article and links are verified.
+
+**Design message:** Show a product image passing through Cloudinary formatting and a human approval gate. Use one approved output and one blocked result. Keep the source, output, and status labels clear.
